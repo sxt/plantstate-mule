@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<mule xmlns:tls="http://www.mulesoft.org/schema/mule/tls" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:apikit="http://www.mulesoft.org/schema/mule/mule-apikit" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd http://www.mulesoft.org/schema/mule/mule-apikit http://www.mulesoft.org/schema/mule/mule-apikit/current/mule-apikit.xsd 
-http://www.mulesoft.org/schema/mule/tls http://www.mulesoft.org/schema/mule/tls/current/mule-tls.xsd">
+<mule xmlns:email="http://www.mulesoft.org/schema/mule/email" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:tls="http://www.mulesoft.org/schema/mule/tls" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:apikit="http://www.mulesoft.org/schema/mule/mule-apikit" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd http://www.mulesoft.org/schema/mule/mule-apikit http://www.mulesoft.org/schema/mule/mule-apikit/current/mule-apikit.xsd 
+http://www.mulesoft.org/schema/mule/tls http://www.mulesoft.org/schema/mule/tls/current/mule-tls.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/email http://www.mulesoft.org/schema/mule/email/current/mule-email.xsd">
     <http:listener-config name="api-httpListenerConfig">
         <http:listener-connection host="0.0.0.0" port="8081" protocol="HTTPS">
 			<tls:context >
@@ -9,7 +11,15 @@ http://www.mulesoft.org/schema/mule/tls http://www.mulesoft.org/schema/mule/tls/
 		</http:listener-connection>
     </http:listener-config>
     <apikit:config name="api-config" api="api.raml" outboundHeadersMapName="outboundHeaders" httpStatusVarName="httpStatus" />
-    <flow name="api-main">
+    <email:smtp-config name="Email_SMTP" doc:name="Email SMTP" doc:id="bf317589-8389-4a7d-99fe-87b9681c581f" >
+		<email:smtp-connection host="${smtp.host}" port="${smtp.port}" user="${smtp.user}" password="${smtp.pwd}" >
+			<email:properties >
+				<email:property key="mail.smtp.starttls.enable" value="true" />
+			</email:properties>
+		</email:smtp-connection>
+	</email:smtp-config>
+	<configuration-properties doc:name="Configuration properties" doc:id="2de9dde9-645c-452d-845c-2fce86f12208" file="${local.ws.properties}" />
+	<flow name="api-main">
         <http:listener config-ref="api-httpListenerConfig" path="/plantstate/*">
             <http:response statusCode="#[vars.httpStatus default 200]">
                 <http:headers><![CDATA[#[vars.outboundHeaders default {}]]]></http:headers>
@@ -129,7 +139,23 @@ output application/json
         </error-handler>
     </flow>
     <flow name="post:\events:application\json:api-config">
-        <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+        <ee:transform doc:name="Transform Message" doc:id="8935a24f-a47e-465e-96b0-4c56267b8aea" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/java
+---
+{
+	eventId: payload.event.eventId,
+	plantId: payload.event.plantId	
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<email:send doc:name="Send" doc:id="d587bd8c-5567-4d21-ad26-242381d3ff29" config-ref="Email_SMTP" subject="Testing Mule" fromAddress="${smtp.user}">
+			<email:to-addresses >
+				<email:to-address value="***REMOVED***" />
+			</email:to-addresses>
+		</email:send>
+		<ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd" doc:name="Succesful completion message">
             <ee:message>
                 <ee:set-payload><![CDATA[%dw 2.0
 output application/json
