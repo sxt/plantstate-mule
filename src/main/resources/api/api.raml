@@ -1,0 +1,29 @@
+#%RAML 1.0
+title: Plant State API
+mediaType:
+  - application/json
+version: 1.0.0
+protocols:
+  - HTTPS
+/events:
+  post:
+    displayName: Post Events
+    description: Post event details.
+    body:
+      application/json:
+        example:
+          strict: true
+          value:
+            event:
+              event_id: 1
+              plant_id: 2
+        type: object
+    responses:
+      "200":
+        body:
+          application/json:
+            example:
+              strict: true
+              value:
+                result: Event created successfully.
+            type: object
