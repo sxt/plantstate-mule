@@ -9,15 +9,6 @@ protocols:
   post:
     displayName: Post Events
     description: Post event details.
-    body:
-      application/json:
-        example:
-          strict: true
-          value:
-            event:
-              eventId: 1
-              plantId: 2
-        type: object
     responses:
       "200":
         body:
@@ -27,3 +18,16 @@ protocols:
               value:
                 result: Event created successfully.
             type: object
+    body:
+      application/json:
+        example:
+          strict: true
+          value:
+            event:
+              eventTypeId: 1
+              plantId: 2
+        type: object
+
+
+
+
