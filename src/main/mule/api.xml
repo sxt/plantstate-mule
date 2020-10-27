@@ -154,15 +154,17 @@ output application/java
 }]]></ee:set-payload>
 			</ee:message>
 		</ee:transform>
-		<flow-ref doc:name="getSubscriptionsForEvent" doc:id="1b85e6bc-98c8-4d3f-ba99-1e9d5e0b9397" name="getSubscriptionsForEvent"/>
-		<scatter-gather doc:name="Scatter-Gather" doc:id="0c2b87a9-dc64-44c5-b07c-342b990c35b6" >
-			<route >
-				<flow-ref doc:name="Send Email" doc:id="e0f77aa2-97c6-440b-a25e-bca3a0a64cdf" name="sendEmail" />
-			</route>
-			<route >
-				<logger level="INFO" doc:name="Logger" doc:id="9edf374b-bc55-45e1-ad4e-3722291157e3" message="Alternate route in scatter-gather"/>
-			</route>
-		</scatter-gather>
+		<flow-ref doc:name="getSubscriptionsForEvent" doc:id="1b85e6bc-98c8-4d3f-ba99-1e9d5e0b9397" name="getSubscriptionsForEvent" target="subscriptions"/>
+		<foreach doc:name="For Each" doc:id="9653a231-24e4-42c6-898e-eb14d0537815" collection="vars.subscriptions">
+			<choice doc:name="Choice" doc:id="3b8c839e-9260-42b6-9e10-39cf22489fa8" >
+				<when expression="#[payload.notification_type_id == 1]">
+					<flow-ref doc:name="Send Email" doc:id="e0f77aa2-97c6-440b-a25e-bca3a0a64cdf" name="sendEmail" />
+				</when>
+				<otherwise >
+					<logger level="INFO" doc:name="Logger" doc:id="9edf374b-bc55-45e1-ad4e-3722291157e3" message="Alternate route in scatter-gather" />
+				</otherwise>
+			</choice>
+		</foreach>
 		<ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd" doc:name="Succesful completion message">
             <ee:message>
                 <ee:set-payload><![CDATA[%dw 2.0
@@ -174,6 +176,15 @@ output application/json
             </ee:message>
         </ee:transform>
     </flow>
+	<sub-flow name="getSubscriptionsForEvent" doc:id="dae976a9-a71e-4d15-8a42-3853ea1652b3">
+		<db:select doc:name="Select" doc:id="21db5dc1-087b-4ab5-b71b-fcc4f10e1030" config-ref="Database_Config" fetchSize="10">
+			<db:sql><![CDATA[select * from subscription_data
+where event_type_id = :eventTypeId
+and plant_id = :plantId]]></db:sql>
+			<db:input-parameters><![CDATA[#[{'eventTypeId': payload.eventTypeId, 'plantId': payload.plantId}]]]></db:input-parameters>
+		</db:select>
+		<logger level="INFO" doc:name="Logger" doc:id="9e512bff-0a09-4ddd-9986-7b57cc796259" message="Subscriptions retrieved" />
+	</sub-flow>
 	<sub-flow name="sendEmail" doc:id="78983e1b-184a-4b7c-a1bf-1f4f5e7d7711" >
 		<email:send doc:name="Send" doc:id="d587bd8c-5567-4d21-ad26-242381d3ff29" config-ref="Email_SMTP" subject="Testing Mule" fromAddress="${smtp.user}">
 			<email:to-addresses>
@@ -181,14 +192,5 @@ output application/json
 			</email:to-addresses>
 		</email:send>
 		<logger level="INFO" doc:name="Logger" doc:id="5707cff3-a4b3-4937-a920-9f675a6aeb95" message="Notification sent by email"/>
-	</sub-flow>
-	<sub-flow name="getSubscriptionsForEvent" doc:id="dae976a9-a71e-4d15-8a42-3853ea1652b3" >
-		<db:select doc:name="Select" doc:id="21db5dc1-087b-4ab5-b71b-fcc4f10e1030" config-ref="Database_Config" fetchSize="10">
-			<db:sql ><![CDATA[select * from subscription_data
-where event_type_id = :eventTypeId
-and plant_id = :plantId]]></db:sql>
-			<db:input-parameters ><![CDATA[#[{'eventTypeId': payload.eventTypeId, 'plantId': payload.plantId}]]]></db:input-parameters>
-		</db:select>
-		<logger level="INFO" doc:name="Logger" doc:id="9e512bff-0a09-4ddd-9986-7b57cc796259" message="Subscriptions retrieved"/>
 	</sub-flow>
 </mule>
