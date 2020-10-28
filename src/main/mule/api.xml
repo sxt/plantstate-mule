@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<mule xmlns:db="http://www.mulesoft.org/schema/mule/db" xmlns:email="http://www.mulesoft.org/schema/mule/email" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:tls="http://www.mulesoft.org/schema/mule/tls" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:apikit="http://www.mulesoft.org/schema/mule/mule-apikit" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd http://www.mulesoft.org/schema/mule/mule-apikit http://www.mulesoft.org/schema/mule/mule-apikit/current/mule-apikit.xsd 
+<mule xmlns:twilio-connector="http://www.mulesoft.org/schema/mule/twilio-connector" xmlns:db="http://www.mulesoft.org/schema/mule/db" xmlns:email="http://www.mulesoft.org/schema/mule/email" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:tls="http://www.mulesoft.org/schema/mule/tls" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:apikit="http://www.mulesoft.org/schema/mule/mule-apikit" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd http://www.mulesoft.org/schema/mule/mule-apikit http://www.mulesoft.org/schema/mule/mule-apikit/current/mule-apikit.xsd 
 http://www.mulesoft.org/schema/mule/tls http://www.mulesoft.org/schema/mule/tls/current/mule-tls.xsd
 http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
 http://www.mulesoft.org/schema/mule/email http://www.mulesoft.org/schema/mule/email/current/mule-email.xsd
-http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd">
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd
+http://www.mulesoft.org/schema/mule/twilio-connector http://www.mulesoft.org/schema/mule/twilio-connector/current/mule-twilio-connector.xsd">
     <http:listener-config name="api-httpListenerConfig">
         <http:listener-connection host="0.0.0.0" port="8081" protocol="HTTPS">
 			<tls:context >
@@ -23,6 +24,7 @@ http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/cu
 	<db:config name="Database_Config" doc:name="Database Config" doc:id="7f9bd6b3-6277-4008-b621-4670fd04aea3" >
 		<db:generic-connection url="jdbc:postgresql://ec2-3-228-114-251.compute-1.amazonaws.com:5432/d9uopun6q2un1q?sslmode=require" driverClassName="org.postgresql.Driver" user="qggkadkeyzwfpr" password="${db.pwd}" />
 	</db:config>
+	<twilio-connector:config name="Twilio_Connector_Config" doc:name="Twilio Connector Config" doc:id="1fb02a94-e803-4265-97d7-3cb867aeefe0" property_username="${twilio.test.sid}" property_password="${twilio.test.token}" />
 	<flow name="api-main">
         <http:listener config-ref="api-httpListenerConfig" path="/plantstate/*">
             <http:response statusCode="#[vars.httpStatus default 200]">
@@ -159,6 +161,22 @@ output application/java
 			<choice doc:name="Choice" doc:id="3b8c839e-9260-42b6-9e10-39cf22489fa8" >
 				<when expression="#[payload.notification_type_id == 1]">
 					<flow-ref doc:name="Send Email" doc:id="e0f77aa2-97c6-440b-a25e-bca3a0a64cdf" name="sendEmail" />
+				</when>
+				<when expression="#[payload.notification_type_id == 2]">
+					<ee:transform doc:name="Transform Message" doc:id="5a0bd0f2-174a-4013-a0c6-b8a46c7b1423">
+						<ee:message>
+							<ee:set-payload><![CDATA[%dw 2.0
+output application/java
+---
+{
+    Body: "Hello from Steve",
+    From: Mule::p('twilio.test.from_phone'),
+    To: "+17813159292"
+}]]></ee:set-payload>
+						</ee:message>
+					</ee:transform>
+					<twilio-connector:send-message doc:name="Send SMS Message" doc:id="6da2204c-69d1-4466-9a40-6a87b5417bf0" config-ref="Twilio_Connector_Config" account-sid="${twilio.test.sid}">
+					</twilio-connector:send-message>
 				</when>
 				<otherwise >
 					<logger level="INFO" doc:name="Logger" doc:id="9edf374b-bc55-45e1-ad4e-3722291157e3" message="Alternate route in scatter-gather" />
