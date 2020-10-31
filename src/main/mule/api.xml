@@ -27,7 +27,7 @@ http://www.mulesoft.org/schema/mule/api-gateway http://www.mulesoft.org/schema/m
 	</db:config>
 	<twilio-connector:config name="Twilio_Connector_Config" doc:name="Twilio Connector Config" doc:id="1fb02a94-e803-4265-97d7-3cb867aeefe0" property_username="${twilio.test.sid}" property_password="${twilio.test.token}" />
 
-	<api-gateway:autodiscovery apiId="***REMOVED***9" ignoreBasePath="true" doc:name="API Autodiscovery" doc:id="e11b6d3f-e5a0-46c7-9ad8-ececf97dd800" flowRef="api-main" />
+	<api-gateway:autodiscovery apiId="***REMOVED***" ignoreBasePath="true" doc:name="API Autodiscovery" doc:id="e11b6d3f-e5a0-46c7-9ad8-ececf97dd800" flowRef="api-main" />
 
 	<flow name="api-main">
         <http:listener config-ref="api-httpListenerConfig" path="/plantstate/*">

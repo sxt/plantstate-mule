@@ -1,3 +1,4 @@
 {
-  "minMuleVersion": "4.3.0"
+  "minMuleVersion": "4.3.0",
+   "secureProperties": ["smtp.pwd", "db.pwd", "twilio.token", "twilio.test.token"]
 }
