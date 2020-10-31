@@ -1,12 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<mule xmlns:twilio-connector="http://www.mulesoft.org/schema/mule/twilio-connector" xmlns:db="http://www.mulesoft.org/schema/mule/db" xmlns:email="http://www.mulesoft.org/schema/mule/email" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:tls="http://www.mulesoft.org/schema/mule/tls" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:apikit="http://www.mulesoft.org/schema/mule/mule-apikit" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd http://www.mulesoft.org/schema/mule/mule-apikit http://www.mulesoft.org/schema/mule/mule-apikit/current/mule-apikit.xsd 
+<mule xmlns:api-gateway="http://www.mulesoft.org/schema/mule/api-gateway" xmlns:twilio-connector="http://www.mulesoft.org/schema/mule/twilio-connector" xmlns:db="http://www.mulesoft.org/schema/mule/db" xmlns:email="http://www.mulesoft.org/schema/mule/email" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:tls="http://www.mulesoft.org/schema/mule/tls" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:apikit="http://www.mulesoft.org/schema/mule/mule-apikit" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd http://www.mulesoft.org/schema/mule/mule-apikit http://www.mulesoft.org/schema/mule/mule-apikit/current/mule-apikit.xsd 
 http://www.mulesoft.org/schema/mule/tls http://www.mulesoft.org/schema/mule/tls/current/mule-tls.xsd
 http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
 http://www.mulesoft.org/schema/mule/email http://www.mulesoft.org/schema/mule/email/current/mule-email.xsd
 http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd
-http://www.mulesoft.org/schema/mule/twilio-connector http://www.mulesoft.org/schema/mule/twilio-connector/current/mule-twilio-connector.xsd">
+http://www.mulesoft.org/schema/mule/twilio-connector http://www.mulesoft.org/schema/mule/twilio-connector/current/mule-twilio-connector.xsd
+http://www.mulesoft.org/schema/mule/api-gateway http://www.mulesoft.org/schema/mule/api-gateway/current/mule-api-gateway.xsd">
     <http:listener-config name="api-httpListenerConfig">
-        <http:listener-connection host="0.0.0.0" port="8081" protocol="HTTPS">
+        <http:listener-connection host="0.0.0.0" port="${https.port}" protocol="HTTPS">
 			<tls:context >
 				<tls:key-store type="jks" path="keystore.jks" keyPassword="mule123" password="mule123" />
 			</tls:context>
@@ -25,6 +26,9 @@ http://www.mulesoft.org/schema/mule/twilio-connector http://www.mulesoft.org/sch
 		<db:generic-connection url="jdbc:postgresql://ec2-3-228-114-251.compute-1.amazonaws.com:5432/d9uopun6q2un1q?sslmode=require" driverClassName="org.postgresql.Driver" user="qggkadkeyzwfpr" password="${db.pwd}" />
 	</db:config>
 	<twilio-connector:config name="Twilio_Connector_Config" doc:name="Twilio Connector Config" doc:id="1fb02a94-e803-4265-97d7-3cb867aeefe0" property_username="${twilio.test.sid}" property_password="${twilio.test.token}" />
+
+	<api-gateway:autodiscovery apiId="164504609" ignoreBasePath="true" doc:name="API Autodiscovery" doc:id="e11b6d3f-e5a0-46c7-9ad8-ececf97dd800" flowRef="api-main" />
+
 	<flow name="api-main">
         <http:listener config-ref="api-httpListenerConfig" path="/plantstate/*">
             <http:response statusCode="#[vars.httpStatus default 200]">
