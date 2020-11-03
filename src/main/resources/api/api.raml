@@ -27,7 +27,16 @@ protocols:
               eventTypeId: 1
               plantId: 2
         type: object
-
-
-
-
+/hello:
+  get:
+    displayName: Hello
+    description: Hello endpoint
+    responses:
+      "200":
+        body:
+          application/json:
+            example:
+              strict: true
+              value:
+                message: Hello
+            type: object

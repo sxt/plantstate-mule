@@ -1,35 +1,27 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<mule xmlns:api-gateway="http://www.mulesoft.org/schema/mule/api-gateway" xmlns:twilio-connector="http://www.mulesoft.org/schema/mule/twilio-connector" xmlns:db="http://www.mulesoft.org/schema/mule/db" xmlns:email="http://www.mulesoft.org/schema/mule/email" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:tls="http://www.mulesoft.org/schema/mule/tls" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:apikit="http://www.mulesoft.org/schema/mule/mule-apikit" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd http://www.mulesoft.org/schema/mule/mule-apikit http://www.mulesoft.org/schema/mule/mule-apikit/current/mule-apikit.xsd 
-http://www.mulesoft.org/schema/mule/tls http://www.mulesoft.org/schema/mule/tls/current/mule-tls.xsd
-http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
-http://www.mulesoft.org/schema/mule/email http://www.mulesoft.org/schema/mule/email/current/mule-email.xsd
-http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd
-http://www.mulesoft.org/schema/mule/twilio-connector http://www.mulesoft.org/schema/mule/twilio-connector/current/mule-twilio-connector.xsd
-http://www.mulesoft.org/schema/mule/api-gateway http://www.mulesoft.org/schema/mule/api-gateway/current/mule-api-gateway.xsd">
+<mule xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:api-gateway="http://www.mulesoft.org/schema/mule/api-gateway" xmlns:apikit="http://www.mulesoft.org/schema/mule/mule-apikit" xmlns:db="http://www.mulesoft.org/schema/mule/db" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:email="http://www.mulesoft.org/schema/mule/email" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:tls="http://www.mulesoft.org/schema/mule/tls" xmlns:twilio-connector="http://www.mulesoft.org/schema/mule/twilio-connector" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd http://www.mulesoft.org/schema/mule/mule-apikit http://www.mulesoft.org/schema/mule/mule-apikit/current/mule-apikit.xsd  http://www.mulesoft.org/schema/mule/tls http://www.mulesoft.org/schema/mule/tls/current/mule-tls.xsd http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd http://www.mulesoft.org/schema/mule/email http://www.mulesoft.org/schema/mule/email/current/mule-email.xsd http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd http://www.mulesoft.org/schema/mule/twilio-connector http://www.mulesoft.org/schema/mule/twilio-connector/current/mule-twilio-connector.xsd http://www.mulesoft.org/schema/mule/api-gateway http://www.mulesoft.org/schema/mule/api-gateway/current/mule-api-gateway.xsd">
     <http:listener-config name="api-httpListenerConfig">
         <http:listener-connection host="0.0.0.0" port="${https.port}" protocol="HTTPS">
-			<tls:context >
-				<tls:key-store type="jks" path="keystore.jks" keyPassword="mule123" password="mule123" />
-			</tls:context>
-		</http:listener-connection>
+            <tls:context>
+                <tls:key-store type="jks" path="keystore.jks" keyPassword="mule123" password="mule123" />
+            </tls:context>
+        </http:listener-connection>
     </http:listener-config>
     <apikit:config name="api-config" api="api.raml" outboundHeadersMapName="outboundHeaders" httpStatusVarName="httpStatus" />
-    <email:smtp-config name="Email_SMTP" doc:name="Email SMTP" doc:id="bf317589-8389-4a7d-99fe-87b9681c581f" >
-		<email:smtp-connection host="${smtp.host}" port="${smtp.port}" user="${smtp.user}" password="${smtp.pwd}" >
-			<email:properties >
-				<email:property key="mail.smtp.starttls.enable" value="true" />
-			</email:properties>
-		</email:smtp-connection>
-	</email:smtp-config>
-	<configuration-properties doc:name="Configuration properties" doc:id="2de9dde9-645c-452d-845c-2fce86f12208" file="${local.ws.properties}" />
-	<db:config name="Database_Config" doc:name="Database Config" doc:id="7f9bd6b3-6277-4008-b621-4670fd04aea3" >
-		<db:generic-connection url="jdbc:postgresql://ec2-3-228-114-251.compute-1.amazonaws.com:5432/d9uopun6q2un1q?sslmode=require" driverClassName="org.postgresql.Driver" user="qggkadkeyzwfpr" password="${db.pwd}" />
-	</db:config>
-	<twilio-connector:config name="Twilio_Connector_Config" doc:name="Twilio Connector Config" doc:id="1fb02a94-e803-4265-97d7-3cb867aeefe0" property_username="${twilio.test.sid}" property_password="${twilio.test.token}" />
-
-	<api-gateway:autodiscovery apiId="16450460" ignoreBasePath="true" doc:name="API Autodiscovery" doc:id="e11b6d3f-e5a0-46c7-9ad8-ececf97dd800" flowRef="api-main" />
-
-	<flow name="api-main">
+    <email:smtp-config name="Email_SMTP" doc:name="Email SMTP" doc:id="bf317589-8389-4a7d-99fe-87b9681c581f">
+        <email:smtp-connection host="${smtp.host}" port="${smtp.port}" user="${smtp.user}" password="${smtp.pwd}">
+            <email:properties>
+                <email:property key="mail.smtp.starttls.enable" value="true" />
+            </email:properties>
+        </email:smtp-connection>
+    </email:smtp-config>
+    <configuration-properties doc:name="Configuration properties" doc:id="2de9dde9-645c-452d-845c-2fce86f12208" file="${local.ws.properties}" />
+    <db:config name="Database_Config" doc:name="Database Config" doc:id="7f9bd6b3-6277-4008-b621-4670fd04aea3">
+        <db:generic-connection url="jdbc:postgresql://ec2-3-228-114-251.compute-1.amazonaws.com:5432/d9uopun6q2un1q?sslmode=require" driverClassName="org.postgresql.Driver" user="qggkadkeyzwfpr" password="${db.pwd}" />
+    </db:config>
+    <twilio-connector:config name="Twilio_Connector_Config" doc:name="Twilio Connector Config" doc:id="1fb02a94-e803-4265-97d7-3cb867aeefe0" property_username="${twilio.test.sid}" property_password="${twilio.test.token}" />
+    <api-gateway:autodiscovery apiId="16450460" ignoreBasePath="true" doc:name="API Autodiscovery" doc:id="e11b6d3f-e5a0-46c7-9ad8-ececf97dd800" flowRef="api-main" />
+    <flow name="api-main">
         <http:listener config-ref="api-httpListenerConfig" path="/plantstate/*">
             <http:response statusCode="#[vars.httpStatus default 200]">
                 <http:headers><![CDATA[#[vars.outboundHeaders default {}]]]></http:headers>
@@ -42,7 +34,7 @@ http://www.mulesoft.org/schema/mule/api-gateway http://www.mulesoft.org/schema/m
         <apikit:router config-ref="api-config" />
         <error-handler>
             <on-error-propagate type="APIKIT:BAD_REQUEST">
-                <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+                <ee:transform xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
                     <ee:message>
                         <ee:set-payload><![CDATA[%dw 2.0
 output application/json
@@ -55,7 +47,7 @@ output application/json
                 </ee:transform>
             </on-error-propagate>
             <on-error-propagate type="APIKIT:NOT_FOUND">
-                <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+                <ee:transform xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
                     <ee:message>
                         <ee:set-payload><![CDATA[%dw 2.0
 output application/json
@@ -68,7 +60,7 @@ output application/json
                 </ee:transform>
             </on-error-propagate>
             <on-error-propagate type="APIKIT:METHOD_NOT_ALLOWED">
-                <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+                <ee:transform xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
                     <ee:message>
                         <ee:set-payload><![CDATA[%dw 2.0
 output application/json
@@ -81,7 +73,7 @@ output application/json
                 </ee:transform>
             </on-error-propagate>
             <on-error-propagate type="APIKIT:NOT_ACCEPTABLE">
-                <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+                <ee:transform xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
                     <ee:message>
                         <ee:set-payload><![CDATA[%dw 2.0
 output application/json
@@ -94,7 +86,7 @@ output application/json
                 </ee:transform>
             </on-error-propagate>
             <on-error-propagate type="APIKIT:UNSUPPORTED_MEDIA_TYPE">
-                <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+                <ee:transform xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
                     <ee:message>
                         <ee:set-payload><![CDATA[%dw 2.0
 output application/json
@@ -107,7 +99,7 @@ output application/json
                 </ee:transform>
             </on-error-propagate>
             <on-error-propagate type="APIKIT:NOT_IMPLEMENTED">
-                <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+                <ee:transform xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
                     <ee:message>
                         <ee:set-payload><![CDATA[%dw 2.0
 output application/json
@@ -134,7 +126,7 @@ output application/json
         <apikit:console config-ref="api-config" />
         <error-handler>
             <on-error-propagate type="APIKIT:NOT_FOUND">
-                <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+                <ee:transform xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
                     <ee:message>
                         <ee:set-payload><![CDATA[%dw 2.0
 output application/json
@@ -149,27 +141,32 @@ output application/json
         </error-handler>
     </flow>
     <flow name="post:\events:application\json:api-config">
-        <ee:transform doc:name="Transform Message" doc:id="8935a24f-a47e-465e-96b0-4c56267b8aea" >
-			<ee:message >
-				<ee:set-payload ><![CDATA[%dw 2.0
+        <ee:transform doc:name="Transform Message" doc:id="8935a24f-a47e-465e-96b0-4c56267b8aea">
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
 output application/java
 ---
 {
 	eventTypeId: payload.event.eventTypeId as Number,
 	plantId: payload.event.plantId as Number
 }]]></ee:set-payload>
-			</ee:message>
-		</ee:transform>
-		<flow-ref doc:name="getSubscriptionsForEvent" doc:id="1b85e6bc-98c8-4d3f-ba99-1e9d5e0b9397" name="getSubscriptionsForEvent" target="subscriptions"/>
-		<foreach doc:name="For Each" doc:id="9653a231-24e4-42c6-898e-eb14d0537815" collection="vars.subscriptions">
-			<choice doc:name="Choice" doc:id="3b8c839e-9260-42b6-9e10-39cf22489fa8" >
-				<when expression="#[payload.notification_type_id == 1]">
-					<flow-ref doc:name="Send Email" doc:id="e0f77aa2-97c6-440b-a25e-bca3a0a64cdf" name="sendEmail" />
-				</when>
-				<when expression="#[payload.notification_type_id == 2]">
-					<ee:transform doc:name="Transform Message" doc:id="5a0bd0f2-174a-4013-a0c6-b8a46c7b1423">
-						<ee:message>
-							<ee:set-payload><![CDATA[%dw 2.0
+            </ee:message>
+        </ee:transform>
+        <flow-ref doc:name="getSubscriptionsForEvent" doc:id="1b85e6bc-98c8-4d3f-ba99-1e9d5e0b9397" name="getSubscriptionsForEvent" target="subscriptions" />
+		<choice doc:name="Choice" doc:id="c709642e-de5a-4ef1-9b21-c5cdb332946d" >
+			<when expression="#[sizeOf(vars.subscriptions default []) == 0]">
+				<logger level="INFO" doc:name="Logger" doc:id="e0e85935-cbc4-48ad-9625-c1967c9d27c8" message="Event type has no subscriptions"/>
+			</when>
+			<otherwise >
+		<foreach doc:name="For Each" doc:id="290bf5f9-8db8-4639-9ab3-a0f0ea99ee0b" collection="vars.subscriptions">
+            <choice doc:name="Choice" doc:id="a5c9bdbd-dc55-4493-a687-95b90853abfe">
+                <when expression="#[payload.notification_type_id == 1]">
+                    <flow-ref doc:name="Send Email" doc:id="3855dbc2-20a7-4805-8b3a-8725570ffb71" name="sendEmail" />
+                </when>
+                <when expression="#[payload.notification_type_id == 2]">
+                    <ee:transform doc:name="Transform Message" doc:id="bed172eb-9941-4f46-b541-fa9add9f21f9">
+                        <ee:message>
+                            <ee:set-payload><![CDATA[%dw 2.0
 output application/java
 ---
 {
@@ -177,17 +174,19 @@ output application/java
     From: Mule::p('twilio.test.from_phone'),
     To: "+17813159292"
 }]]></ee:set-payload>
-						</ee:message>
-					</ee:transform>
-					<twilio-connector:send-message doc:name="Send SMS Message" doc:id="6da2204c-69d1-4466-9a40-6a87b5417bf0" config-ref="Twilio_Connector_Config" account-sid="${twilio.test.sid}">
-					</twilio-connector:send-message>
-				</when>
-				<otherwise >
-					<logger level="INFO" doc:name="Logger" doc:id="9edf374b-bc55-45e1-ad4e-3722291157e3" message="Alternate route in scatter-gather" />
-				</otherwise>
-			</choice>
-		</foreach>
-		<ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd" doc:name="Succesful completion message">
+                        </ee:message>
+                    </ee:transform>
+                    <twilio-connector:send-message doc:name="Send SMS Message" doc:id="67317ea9-780b-48ac-8fae-5a88f0875bbe" config-ref="Twilio_Connector_Config" account-sid="${twilio.test.sid}" />
+					<logger level="INFO" doc:name="Logger" doc:id="c9317638-9f2c-4f13-9929-375468fb4a1f" message="Notification sent by  SMS"/>
+                </when>
+                <otherwise>
+                    <logger level="INFO" doc:name="Logger" doc:id="43d38623-bcdd-4d2c-ace1-f7bf8692aac0" message="Alternate route in scatter-gather" />
+                </otherwise>
+            </choice>
+        </foreach>
+			</otherwise>
+		</choice>
+        <ee:transform xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd" doc:name="Succesful completion message">
             <ee:message>
                 <ee:set-payload><![CDATA[%dw 2.0
 output application/json
@@ -198,21 +197,34 @@ output application/json
             </ee:message>
         </ee:transform>
     </flow>
-	<sub-flow name="getSubscriptionsForEvent" doc:id="dae976a9-a71e-4d15-8a42-3853ea1652b3">
-		<db:select doc:name="Select" doc:id="21db5dc1-087b-4ab5-b71b-fcc4f10e1030" config-ref="Database_Config" fetchSize="10">
-			<db:sql><![CDATA[select * from subscription_data
+    <flow name="get:\hello:api-config">
+        <logger level="INFO" doc:name="Logger" doc:id="e7100017-b61b-4a10-b24e-b334e4b2bcb6" message="Someone said hello"/>
+		<ee:transform xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+  message: "Hello"
+}]]></ee:set-payload>
+            </ee:message>
+        </ee:transform>
+    </flow>
+    <sub-flow name="getSubscriptionsForEvent" doc:id="dae976a9-a71e-4d15-8a42-3853ea1652b3">
+        <db:select doc:name="Select" doc:id="21db5dc1-087b-4ab5-b71b-fcc4f10e1030" config-ref="Database_Config" fetchSize="10">
+            <db:sql><![CDATA[select * from subscription_data
 where event_type_id = :eventTypeId
 and plant_id = :plantId]]></db:sql>
-			<db:input-parameters><![CDATA[#[{'eventTypeId': payload.eventTypeId, 'plantId': payload.plantId}]]]></db:input-parameters>
-		</db:select>
-		<logger level="INFO" doc:name="Logger" doc:id="9e512bff-0a09-4ddd-9986-7b57cc796259" message="Subscriptions retrieved" />
-	</sub-flow>
-	<sub-flow name="sendEmail" doc:id="78983e1b-184a-4b7c-a1bf-1f4f5e7d7711" >
-		<email:send doc:name="Send" doc:id="d587bd8c-5567-4d21-ad26-242381d3ff29" config-ref="Email_SMTP" subject="Testing Mule" fromAddress="${smtp.user}">
-			<email:to-addresses>
-				<email:to-address value="sxturner@hotmail.com" />
-			</email:to-addresses>
-		</email:send>
-		<logger level="INFO" doc:name="Logger" doc:id="5707cff3-a4b3-4937-a920-9f675a6aeb95" message="Notification sent by email"/>
-	</sub-flow>
+            <db:input-parameters><![CDATA[#[{'eventTypeId': payload.eventTypeId, 'plantId': payload.plantId}]]]></db:input-parameters>
+        </db:select>
+        <logger level="INFO" doc:name="Logger" doc:id="9e512bff-0a09-4ddd-9986-7b57cc796259" message="Subscriptions retrieved" />
+    </sub-flow>
+    <sub-flow name="sendEmail" doc:id="78983e1b-184a-4b7c-a1bf-1f4f5e7d7711">
+        <email:send doc:name="Send" doc:id="d587bd8c-5567-4d21-ad26-242381d3ff29" config-ref="Email_SMTP" subject="Testing Mule" fromAddress="${smtp.user}">
+            <email:to-addresses>
+                <email:to-address value="sxturner@hotmail.com" />
+            </email:to-addresses>
+        </email:send>
+        <logger level="INFO" doc:name="Logger" doc:id="5707cff3-a4b3-4937-a920-9f675a6aeb95" message="Notification sent by email" />
+    </sub-flow>
 </mule>
