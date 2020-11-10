@@ -161,7 +161,7 @@ output application/java
 		<foreach doc:name="For Each" doc:id="290bf5f9-8db8-4639-9ab3-a0f0ea99ee0b" collection="vars.subscriptions">
             <choice doc:name="Choice" doc:id="a5c9bdbd-dc55-4493-a687-95b90853abfe">
                 <when expression="#[payload.notification_type_id == 1]">
-                    <flow-ref doc:name="Send Email" doc:id="3855dbc2-20a7-4805-8b3a-8725570ffb71" name="sendEmail" />
+							<flow-ref doc:name="Send Email" doc:id="3855dbc2-20a7-4805-8b3a-8725570ffb71" name="sendEmail" />
                 </when>
                 <when expression="#[payload.notification_type_id == 2]">
                     <ee:transform doc:name="Transform Message" doc:id="bed172eb-9941-4f46-b541-fa9add9f21f9">
@@ -170,7 +170,7 @@ output application/java
 output application/java
 ---
 {
-    Body: "Hello from ***REMOVED***",
+    Body: payload.event_type_name,
     From: Mule::p('twilio.test.from_phone'),
     To: "+***REMOVED***"
 }]]></ee:set-payload>
@@ -220,10 +220,13 @@ and plant_id = :plantId]]></db:sql>
         <logger level="INFO" doc:name="Logger" doc:id="9e512bff-0a09-4ddd-9986-7b57cc796259" message="Subscriptions retrieved" />
     </sub-flow>
     <sub-flow name="sendEmail" doc:id="78983e1b-184a-4b7c-a1bf-1f4f5e7d7711">
-        <email:send doc:name="Send" doc:id="d587bd8c-5567-4d21-ad26-242381d3ff29" config-ref="Email_SMTP" subject="Testing Mule" fromAddress="${smtp.user}">
+        <email:send doc:name="Send" doc:id="d587bd8c-5567-4d21-ad26-242381d3ff29" config-ref="Email_SMTP" subject="Message from Karl" fromAddress="${smtp.user}">
             <email:to-addresses>
                 <email:to-address value="***REMOVED***" />
             </email:to-addresses>
+			<email:body contentType="#['text/plain']">
+				<email:content >#[payload.event_type_name]</email:content>
+			</email:body>
         </email:send>
         <logger level="INFO" doc:name="Logger" doc:id="5707cff3-a4b3-4937-a920-9f675a6aeb95" message="Notification sent by email" />
     </sub-flow>
