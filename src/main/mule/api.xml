@@ -17,10 +17,10 @@
     </email:smtp-config>
     <configuration-properties doc:name="Configuration properties" doc:id="2de9dde9-645c-452d-845c-2fce86f12208" file="${local.ws.properties}" />
     <db:config name="Database_Config" doc:name="Database Config" doc:id="7f9bd6b3-6277-4008-b621-4670fd04aea3">
-        <db:generic-connection url="jdbc:postgresql://ec2-3-228-114-251.compute-1.amazonaws.com:5432/d9uopun6q2un1q?sslmode=require" driverClassName="org.postgresql.Driver" user="qggkadkeyzwfpr" password="${db.pwd}" />
+        <db:generic-connection url="jdbc:postgresql://ec2-3-228-114-251.compute-1.amazonaws.com:5432/d9uopun6q2un1q?sslmode=require" driverClassName="org.postgresql.Driver" user="${db.user}" password="${db.pwd}" />
     </db:config>
-    <twilio-connector:config name="Twilio_Connector_Config" doc:name="Twilio Connector Config" doc:id="1fb02a94-e803-4265-97d7-3cb867aeefe0" property_username="${twilio.test.sid}" property_password="${twilio.test.token}" />
-    <api-gateway:autodiscovery apiId="***REMOVED***" ignoreBasePath="true" doc:name="API Autodiscovery" doc:id="e11b6d3f-e5a0-46c7-9ad8-ececf97dd800" flowRef="api-main" />
+    <twilio-connector:config name="Twilio_Connector_Config" doc:name="Twilio Connector Config" doc:id="1fb02a94-e803-4265-97d7-3cb867aeefe0" property_username="${twilio.sid}" property_password="${twilio.token}" />
+    <api-gateway:autodiscovery apiId="${apiId}" ignoreBasePath="true" doc:name="API Autodiscovery" doc:id="e11b6d3f-e5a0-46c7-9ad8-ececf97dd800" flowRef="api-main" />
     <flow name="api-main">
         <http:listener config-ref="api-httpListenerConfig" path="/plantstate/*">
             <http:response statusCode="#[vars.httpStatus default 200]">
@@ -163,7 +163,7 @@ output application/java
                 <when expression="#[payload.notification_type_id == 1]">
 							<email:send doc:name="Send Email" doc:id="d587bd8c-5567-4d21-ad26-242381d3ff29" config-ref="Email_SMTP" subject="Message from Karl" fromAddress="${smtp.user}">
             <email:to-addresses>
-                <email:to-address value="***REMOVED***" />
+                <email:to-address value="#[payload.notification_address]" />
             </email:to-addresses>
 			<email:body contentType="#['text/plain']">
 				<email:content>#[payload.event_type_name]</email:content>
@@ -179,12 +179,12 @@ output application/java
 ---
 {
     Body: payload.event_type_name,
-    From: Mule::p('twilio.test.from_phone'),
-    To: "+***REMOVED***"
+    From: Mule::p('twilio.from_phone'),
+    To: payload.notification_address
 }]]></ee:set-payload>
                         </ee:message>
                     </ee:transform>
-                    <twilio-connector:send-message doc:name="Send SMS Message" doc:id="67317ea9-780b-48ac-8fae-5a88f0875bbe" config-ref="Twilio_Connector_Config" account-sid="${twilio.test.sid}" />
+                    <twilio-connector:send-message doc:name="Send SMS Message" doc:id="67317ea9-780b-48ac-8fae-5a88f0875bbe" config-ref="Twilio_Connector_Config" account-sid="${twilio.sid}" />
 					<logger level="INFO" doc:name="Logger" doc:id="c9317638-9f2c-4f13-9929-375468fb4a1f" message="Notification sent by  SMS"/>
                 </when>
                 <otherwise>
